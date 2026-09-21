@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TADA Pricing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TADA PRICING CALCULATOR — v1
+   ============================================================ */
+
+:root{
+  --plum:#412148;
+  --plum-700:#33193a;
+  --plum-100:#f2ecf4;
+  --cyan:#1DEFFF;
+  --coral:#FF635D;
+  --ink:#1b1420;
+  --body:#4a4351;
+  --muted:#7b7385;
+  --line:#e4e0e8;
+  --line-strong:#cdc7d4;
+  --bg:#f6f4f8;
+  --card:#ffffff;
+  --ok:#1f7a5c;
+  --warn-bg:#fff4f3;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --display:'Space Grotesk','Inter',sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--body);
+  font-size:15px;
+  line-height:1.5;
+}
+h1,h2,h3,h4{font-family:var(--display);color:var(--ink);font-weight:600;line-height:1.2}
+
+/* ---------- App chrome ---------- */
+.topbar{
+  background:var(--plum);
+  color:#fff;
+  padding:14px 24px;
+  display:flex;align-items:center;gap:20px;
+  position:sticky;top:0;z-index:50;
+}
+.brand{font-family:var(--display);font-weight:700;font-size:17px;color:#fff;letter-spacing:-.01em;display:flex;align-items:center}
+.brand span{color:var(--cyan)}
+/* Any logo dropped into the brand slot is capped to the bar height */
+.brand img,.brand svg{height:26px;width:auto;max-width:220px;display:block}
+.topbar .spacer{flex:1}
+.viewtoggle{display:flex;background:rgba(255,255,255,.12);border-radius:7px;padding:3px}
+.viewtoggle button{
+  font:500 13.5px var(--sans);color:rgba(255,255,255,.75);
+  background:none;border:0;padding:6px 16px;border-radius:5px;cursor:pointer;
+}
+.viewtoggle button.on{background:#fff;color:var(--plum)}
+.ghostbtn{
+  font:500 13.5px var(--sans);color:#fff;background:none;
+  border:1px solid rgba(255,255,255,.35);border-radius:6px;
+  padding:7px 14px;cursor:pointer;
+}
+.ghostbtn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:26px 24px 80px;display:grid;grid-template-columns:1fr 316px;gap:26px;align-items:start}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr}}
+
+.step{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.step-head{display:flex;gap:13px;align-items:baseline;padding:17px 22px 0}
+.step-num{
+  font-family:var(--display);font-weight:700;font-size:12px;color:var(--plum);
+  background:var(--plum-100);width:23px;height:23px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex:none;position:relative;top:2px;
+}
+.step-head h2{font-size:16.5px}
+.step-head p{font-size:13px;color:var(--muted);margin-top:3px}
+.step-body{padding:16px 22px 22px}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.field .hint{font-weight:400;color:var(--muted);font-size:12px}
+input[type=text],input[type=number],select{
+  width:100%;font:400 14px var(--sans);color:var(--ink);
+  border:1px solid var(--line-strong);border-radius:7px;padding:9px 11px;background:#fff;
+}
+input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:-1px;border-color:var(--plum)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ---------- Portfolio picker ---------- */
+.chev{
+  width:20px;height:20px;flex:none;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:transform .16s;
+}
+.prodgroup.open .chev{transform:rotate(90deg)}
+.chev svg{width:11px;height:11px}
+@media(prefers-reduced-motion:reduce){.chev{transition:none}}
+.badge{
+  font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:9px;
+  letter-spacing:.01em;white-space:nowrap;
+}
+.badge.req{background:var(--plum-100);color:var(--plum)}
+.badge.opt{background:#f0eff2;color:var(--muted)}
+.step-head .badge{position:relative;top:-1px}
+.headline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.needs{
+  font-size:12.5px;color:#8a2b27;background:var(--warn-bg);border:1px solid var(--coral);
+  border-radius:7px;padding:9px 12px;margin-bottom:13px;
+}
+input.blank,select.blank{border-color:var(--coral);background:#fffafa}
+select.blank{color:var(--muted)}
+.linkbtn{
+  background:none;border:0;color:var(--plum);font:500 13px var(--sans);
+  cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;
+}
+.linkbtn:hover{color:var(--plum-700)}
+.prodgroup{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;overflow:hidden}
+.prodgroup.active{border-color:var(--plum);box-shadow:0 0 0 1px var(--plum)}
+.prodhead{display:flex;align-items:center;gap:11px;padding:12px 15px;background:#fbfafc;cursor:pointer}
+.prodgroup.active .prodhead{background:var(--plum-100)}
+.prodhead .name{font-family:var(--display);font-weight:600;font-size:14.5px;color:var(--ink);flex:1}
+.prodhead .count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.prodgroup .caps{display:none}
+.prodgroup.open .caps{display:grid}
+.caps{padding:4px 15px 12px 15px;grid-template-columns:1fr 1fr;gap:2px}
+@media(max-width:640px){.caps{grid-template-columns:1fr}}
+.prodgroup .solnote{display:none}
+.prodgroup.open .solnote{display:block}
+.capitem{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13.5px}
+.capitem:hover{background:#f8f7fa}
+.capitem.mirror{color:var(--muted)}
+.mirrortag{font-size:10.5px;color:var(--plum);background:var(--plum-100);padding:1px 6px;border-radius:9px;font-weight:600}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--plum);cursor:pointer;flex:none}
+.solnote{font-size:12.5px;color:var(--muted);padding:0 15px 12px;line-height:1.45}
+
+/* ---------- Scale inputs ---------- */
+.scalerow{display:grid;grid-template-columns:1fr 190px 108px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.scalerow:last-child{border-bottom:0}
+.scalerow .nm{font-size:13.5px;font-weight:500;color:var(--ink)}
+.scalerow .nm small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:1px}
+.scalerow .amt{text-align:right;font-size:13.5px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.scalerow .amt small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.empty{font-size:13.5px;color:var(--muted);padding:14px;background:#fbfafc;border-radius:7px;text-align:center}
+
+/* ---------- Discounts ---------- */
+.disc-line{display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:13.5px}
+.disc-line .v{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.disc-total{border-top:1px solid var(--line);margin-top:5px;padding-top:11px;font-weight:600;color:var(--ink)}
+.slider{display:flex;align-items:center;gap:13px}
+.slider input[type=range]{flex:1;accent-color:var(--plum)}
+input[type=number].pillbox{width:78px;flex:none;text-align:center;font-variant-numeric:tabular-nums}
+.slider .suffix{font-size:13px;color:var(--muted);font-weight:500}
+.alert{
+  background:var(--warn-bg);border:1px solid var(--coral);border-radius:7px;
+  padding:11px 13px;font-size:13px;color:#8a2b27;margin-top:11px;
+}
+.alert strong{color:#6f221f}
+.subpanel{background:#fbfafc;border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:14px}
+.subpanel h4{font-size:13px;margin-bottom:4px}
+.subpanel p{font-size:12.5px;color:var(--muted);margin-bottom:11px}
+.btn{
+  font:600 13.5px var(--sans);background:var(--plum);color:#fff;border:0;
+  border-radius:7px;padding:9px 16px;cursor:pointer;
+}
+.btn:hover{background:var(--plum-700)}
+.btn.sec{background:#fff;color:var(--plum);border:1px solid var(--line-strong)}
+.btn.sec:hover{border-color:var(--plum);background:var(--plum-100)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.rowbtns{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+
+/* ---------- Generate quote ---------- */
+.gen{margin-top:22px;text-align:center}
+.genbtn{
+  font-size:15px;padding:14px 34px;border-radius:9px;
+  box-shadow:0 2px 10px rgba(65,33,72,.22);
+}
+.genbtn:disabled{box-shadow:none}
+.genhint{font-size:12.5px;color:var(--muted);margin-top:10px}
+.gen .needs{text-align:left}
+.gen .needs ul{margin:6px 0 0 17px;font-size:12.5px}
+.gen .needs li{margin-top:2px}
+
+/* ---------- Summary rail ---------- */
+.rail{position:sticky;top:82px}
+.summary{background:var(--plum);color:#fff;border-radius:11px;padding:20px;margin-bottom:14px}
+.summary .lbl{font-size:11.5px;color:rgba(255,255,255,.62);font-weight:500;margin-bottom:2px}
+.summary .big{font-family:var(--display);font-size:31px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.summary .sub{display:flex;gap:22px;margin-top:16px;padding-top:15px;border-top:1px solid rgba(255,255,255,.16)}
+.summary .sub div{flex:1}
+.summary .sub .v{font-family:var(--display);font-size:15px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
+.summary .tcv{margin-top:15px;padding-top:14px;border-top:1px solid rgba(255,255,255,.16)}
+.summary .tcv .v{font-family:var(--display);font-size:20px;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums}
+.breakdown{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.breakdown h3{font-size:13px;margin-bottom:11px}
+.bd-line{display:flex;justify-content:space-between;font-size:13px;padding:5px 0}
+.bd-line .v{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500}
+.bd-line.neg .v{color:var(--ok)}
+.bd-line.tot{border-top:1px solid var(--line);margin-top:6px;padding-top:9px;font-weight:600;color:var(--ink)}
+
+/* ---------- Quote view ---------- */
+.quote-wrap{max-width:900px;margin:0 auto;padding:26px 24px 80px}
+.quote{background:#fff;border:1px solid var(--line);border-radius:10px;padding:44px 46px}
+.q-head{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:22px;border-bottom:2px solid var(--plum);margin-bottom:26px}
+.q-head .logo{font-family:var(--display);font-weight:700;font-size:21px;color:var(--plum);display:flex;align-items:center}
+.q-head .logo span{color:var(--cyan);-webkit-text-stroke:.4px var(--plum)}
+/* Logo on the customer quote — bigger, and forced to print rather than drop out */
+.q-head .logo img,.q-head .logo svg{
+  height:38px;width:auto;max-width:280px;display:block;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.q-head .meta{text-align:right;font-size:12.5px;color:var(--muted);line-height:1.7}
+.q-head .meta b{color:var(--ink);font-weight:600}
+.q-title{font-size:22px;margin-bottom:3px}
+.q-sub{font-size:13.5px;color:var(--muted);margin-bottom:26px}
+.q-sect{font-family:var(--display);font-size:12px;font-weight:600;color:var(--plum);padding-bottom:7px;border-bottom:1px solid var(--line);margin:26px 0 3px}
+.q-prod{padding:13px 0;border-bottom:1px solid var(--line)}
+.q-prod .pname{font-family:var(--display);font-weight:600;font-size:14.5px;color:var(--ink);display:flex;justify-content:space-between;gap:16px}
+.q-prod .pname .amt{font-variant-numeric:tabular-nums;font-weight:600}
+.q-prod ul{list-style:none;margin-top:6px}
+.q-prod li{font-size:13px;color:var(--body);padding:2px 0 2px 15px;position:relative}
+.q-prod li:before{content:'';position:absolute;left:2px;top:9px;width:4px;height:4px;border-radius:50%;background:var(--line-strong)}
+.q-row{display:flex;justify-content:space-between;padding:9px 0;font-size:13.5px;border-bottom:1px solid var(--line)}
+.q-row .v{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500}
+.q-row.disc .v{color:var(--ok)}
+.q-totals{margin-top:30px;background:var(--plum-100);border-radius:9px;padding:22px 24px}
+.q-tot{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0}
+.q-tot .l{font-size:13.5px;color:var(--body)}
+.q-tot .v{font-family:var(--display);font-size:16px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.q-tot.hero{border-bottom:1px solid var(--line-strong);padding-bottom:14px;margin-bottom:8px}
+.q-tot.hero .l{font-size:14px;font-weight:600;color:var(--ink)}
+.q-tot.hero .v{font-size:30px;font-weight:700;color:var(--plum);letter-spacing:-.02em}
+.q-tot.grand{border-top:1px solid var(--line-strong);margin-top:9px;padding-top:14px}
+.q-tot.grand .l{font-weight:600;color:var(--ink);font-size:14px}
+.q-tot.grand .v{font-size:22px;font-weight:700;color:var(--plum)}
+.q-foot{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.65}
+.quote-actions{display:flex;gap:10px;justify-content:flex-end;margin-bottom:16px;flex-wrap:wrap}
+
+/* ---------- Reference modal ---------- */
+.modal{position:fixed;inset:0;background:rgba(27,20,32,.55);z-index:100;display:none;padding:34px 20px;overflow-y:auto}
+.modal.open{display:block}
+.modal-inner{background:#fff;max-width:920px;margin:0 auto;border-radius:11px;padding:30px 34px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.modal-head h2{font-size:19px}
+.closex{background:none;border:0;font-size:24px;color:var(--muted);cursor:pointer;line-height:1;padding:2px 6px}
+.reftable{width:100%;border-collapse:collapse;margin:9px 0 22px;font-size:12.5px}
+.reftable th{text-align:left;font-weight:600;color:var(--ink);background:#fbfafc;padding:7px 10px;border:1px solid var(--line)}
+.reftable td{padding:6px 10px;border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.reftable td:last-child,.reftable th:last-child{text-align:right}
+.refgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+@media(max-width:700px){.refgrid{grid-template-columns:1fr}}
+.ref-h{font-family:var(--display);font-size:13px;font-weight:600;color:var(--plum);margin-top:16px}
+.ref-note{font-size:12.5px;color:var(--muted);background:#fbfafc;border-left:3px solid var(--cyan);padding:10px 13px;margin:12px 0;line-height:1.55}
+
+.info{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:15px;height:15px;border-radius:50%;border:1px solid var(--line-strong);
+  color:var(--muted);font-size:10px;font-weight:700;cursor:help;margin-left:5px;
+  font-family:var(--sans);position:relative;top:-1px;
+}
+.info:hover{border-color:var(--plum);color:var(--plum)}
+
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
+  background:var(--ink);color:#fff;font:500 13.5px var(--sans);
+  padding:11px 18px;border-radius:8px;z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
+  box-shadow:0 6px 22px rgba(27,20,32,.28);max-width:88vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.bad{background:var(--coral)}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+
+@media(max-width:620px){
+  .topbar{flex-wrap:wrap;gap:10px;padding:12px 16px;position:static}
+  .topbar .spacer{display:none}
+  .brand{width:100%}
+  .wrap,.quote-wrap{padding:18px 16px 60px}
+  .quote{padding:26px 22px}
+  .scalerow{grid-template-columns:1fr 132px;grid-template-areas:'nm inp' 'amt amt';gap:8px}
+  .scalerow .nm{grid-area:nm} .scalerow input,.scalerow select{grid-area:inp} .scalerow .amt{grid-area:amt;text-align:left}
+  .scalerow .amt small{display:inline;margin-left:5px}
+}
+
+@media print{
+  .topbar,.quote-actions,.rail,.modal{display:none!important}
+  body{background:#fff}
+  .quote-wrap{padding:0;max-width:none}
+  .quote{border:0;padding:0;border-radius:0}
+  .q-prod,.q-row{break-inside:avoid}
+  .q-totals{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .q-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand" id="brandTop"></div>
+  <div class="spacer"></div>
+  <div class="viewtoggle">
+    <button id="tabBuild" class="on" onclick="setView('build')">Build</button>
+    <button id="tabQuote" onclick="setView('quote')">Quote</button>
+  </div>
+  <button class="ghostbtn" onclick="saveQuote()">Save</button>
+  <button class="ghostbtn" onclick="openLoad()">Open</button>
+  <button class="ghostbtn" onclick="openRef()">Pricing reference</button>
+</div>
+<input type="file" id="fileIn" accept=".json,.tadaquote,application/json" style="display:none" onchange="loadFile(this)">
+
+<!-- ===================== BUILD VIEW ===================== -->
+<div id="viewBuild">
+<div class="wrap">
+  <div>
+
+    <!-- STEP 1 -->
+    <section class="step">
+      <div class="step-head"><div class="step-num">1</div>
+        <div><div class="headline"><h2>Deal details</h2><span class="badge opt">Optional except term</span></div>
+          <p>Identifies the quote and sets the contract term.</p></div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="field"><label for="fCustomer">Customer name <span class="hint">optional</span></label>
+            <input type="text" id="fCustomer" placeholder="e.g. Cummins Inc." oninput="updateTotals()"></div>
+          <div class="field"><label for="fRep">Prepared by <span class="hint">optional</span></label>
+            <input type="text" id="fRep" placeholder="Your name" oninput="updateTotals()"></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label for="fMonths">Contract length <span class="hint">months · required</span></label>
+            <input type="number" id="fMonths" value="36" min="1" max="120" step="1" inputmode="numeric" oninput="updateTotals()"></div>
+          <div class="field"><label for="fOto">Implementation fee
+              <span class="info" id="otoInfo">i</span></label>
+            <div class="slider">
+              <input type="number" id="fOto" class="pillbox" min="30" max="60" step="1" value="50" inputmode="numeric" oninput="updateTotals()">
+              <span class="suffix">% of annual price</span>
+            </div>
+            <div id="otoNote" class="hint" style="margin-top:5px"></div>
+          </div>
+          <div class="field"><label for="fDate">Quote date <span class="hint">optional</span></label>
+            <input type="text" id="fDate" oninput="updateTotals()"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step">
+      <div class="step-head"><div class="step-num">2</div>
+        <div><div class="headline"><h2>Capabilities</h2><span class="badge req">Required</span></div>
+          <p>Tick a product to include everything in it, or open it to pick individual capabilities.</p></div>
+      </div>
+      <div class="step-body"><div id="portfolio"></div></div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step">
+      <div class="step-head"><div class="step-num">3</div>
+        <div><div class="headline"><h2>Company profile</h2><span class="badge req">Required</span></div>
+          <p>Sets the capability fee multipliers. Smaller footprints price lower.</p></div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="field">
+            <label for="fRevenue">Annual revenue
+              <span class="info" id="revInfo">i</span>
+            </label>
+            <select id="fRevenue" onchange="updateTotals()"></select>
+          </div>
+          <div class="field">
+            <label for="fDatasets">Data sets / source systems
+              <span class="info" id="dsInfo">i</span>
+            </label>
+            <select id="fDatasets" onchange="updateTotals()"></select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step">
+      <div class="step-head"><div class="step-num">4</div>
+        <div><div class="headline"><h2>Network scale</h2><span class="badge req">Required</span></div>
+          <p>Only the ranges your selected capabilities require are shown. Each one needs a selection.</p></div>
+      </div>
+      <div class="step-body"><div id="scaleInputs"></div></div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step">
+      <div class="step-head"><div class="step-num">5</div>
+        <div><div class="headline"><h2>Discount</h2><span class="badge opt">Optional</span></div>
+          <p>The volume tier applies automatically. Management discount is yours to set.</p></div>
+      </div>
+      <div class="step-body">
+        <div class="disc-line"><span>Volume discount <span id="qdBasis" class="hint"></span></span><span class="v" id="qdVal">0%</span></div>
+        <div class="field" style="margin-top:9px">
+          <label for="fMd">Management discount <span class="hint" id="mdCapNote"></span></label>
+          <div class="slider">
+            <input type="range" id="fMdRange" min="0" max="15" step="0.5" value="0" oninput="syncMd(this.value)">
+            <input type="number" id="fMd" class="pillbox" min="0" max="15" step="0.5" value="0" oninput="syncMd(this.value)">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="disc-line disc-total"><span>Total discount</span><span class="v" id="totDisc">0%</span></div>
+        <div id="discAlert"></div>
+
+        <div style="margin-top:14px">
+          <button class="linkbtn" onclick="openTarget()">Solve for a target price instead</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="gen">
+      <div id="genIssues"></div>
+      <button class="btn genbtn" onclick="generateQuote()">Generate quote</button>
+      <p class="genhint">Builds the customer-facing summary you can print, save as PDF, or drop into a slide.</p>
+    </div>
+
+  </div>
+
+  <!-- SUMMARY RAIL -->
+  <aside class="rail">
+    <div class="summary">
+      <div class="lbl">Annual price (ARR)</div>
+      <div class="big" id="sARR">$0</div>
+      <div class="sub">
+        <div><div class="lbl">Monthly</div><div class="v" id="sMRR">$0</div></div>
+        <div><div class="lbl">Implementation <span id="sOtoPct"></span></div><div class="v" id="sOTO">$0</div></div>
+      </div>
+      <div class="tcv"><div class="lbl">Total contract value <span id="sTerm"></span></div><div class="v" id="sTCV">$0</div></div>
+    </div>
+    <div class="breakdown">
+      <h3>Monthly build-up</h3>
+      <div class="bd-line"><span>Capability fee</span><span class="v" id="bCap">$0</span></div>
+      <div class="bd-line"><span>Network scale fee</span><span class="v" id="bNet">$0</span></div>
+      <div class="bd-line"><span>Subtotal</span><span class="v" id="bSub">$0</span></div>
+      <div class="bd-line neg"><span>Discount <span id="bDiscPct" class="hint"></span></span><span class="v" id="bDisc">$0</span></div>
+      <div class="bd-line tot"><span>Monthly price</span><span class="v" id="bMRR">$0</span></div>
+    </div>
+  </aside>
+</div>
+</div>
+
+<!-- ===================== QUOTE VIEW ===================== -->
+<div id="viewQuote" style="display:none">
+  <div class="quote-wrap">
+    <div class="quote-actions">
+      <button class="btn sec" onclick="setView('build')">Back to build</button>
+      <button class="btn sec" onclick="copyCode()">Copy quote code</button>
+      <button class="btn sec" onclick="saveQuote()">Save quote file</button>
+      <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+    <div class="quote" id="quoteBody"></div>
+  </div>
+</div>
+
+<!-- ===================== TARGET PRICE MODAL ===================== -->
+<div class="modal" id="targetModal" onclick="if(event.target===this)closeTarget()">
+  <div class="modal-inner" style="max-width:480px">
+    <div class="modal-head"><h2>Solve for a target price</h2><button class="closex" onclick="closeTarget()">&times;</button></div>
+    <p style="font-size:13.5px;color:var(--muted);margin-bottom:16px">
+      Enter the monthly price you're aiming for and the tool works out the management discount needed to reach it.
+      Nothing changes until you apply it.</p>
+    <div class="field">
+      <label for="fTarget">Target monthly price</label>
+      <input type="number" id="fTarget" placeholder="e.g. 150000" inputmode="numeric" oninput="previewTarget()">
+    </div>
+    <div id="targetOut"></div>
+    <div class="rowbtns" style="margin-top:15px">
+      <button class="btn" id="btnApplyTarget" onclick="applyTarget()" disabled>Apply discount</button>
+      <button class="btn sec" onclick="closeTarget()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LOAD QUOTE MODAL ===================== -->
+<div class="modal" id="loadModal" onclick="if(event.target===this)closeLoad()">
+  <div class="modal-inner" style="max-width:540px">
+    <div class="modal-head"><h2>Open a saved quote</h2><button class="closex" onclick="closeLoad()">&times;</button></div>
+    <p style="font-size:13.5px;color:var(--muted);margin-bottom:18px">Restores every input, including the ones the customer PDF never shows.</p>
+
+    <div class="subpanel" style="margin-top:0">
+      <h4>From a quote file</h4>
+      <p>The <code>.json</code> file you got from Save.</p>
+      <button class="btn sec" onclick="document.getElementById('fileIn').click()">Choose file</button>
+    </div>
+
+    <div class="subpanel">
+      <h4>From a quote code</h4>
+      <p>Paste a code shared over Slack or email.</p>
+      <textarea id="codeIn" rows="3" placeholder="TADA1:..." style="width:100%;font:400 12px ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line-strong);border-radius:7px;padding:9px 11px;resize:vertical"></textarea>
+      <div class="rowbtns" style="margin-top:9px"><button class="btn" onclick="loadCode()">Load quote</button></div>
+    </div>
+    <div id="loadMsg"></div>
+  </div>
+</div>
+
+<!-- ===================== REFERENCE MODAL ===================== -->
+<div class="modal" id="refModal" onclick="if(event.target===this)closeRef()">
+  <div class="modal-inner">
+    <div class="modal-head"><h2>Pricing reference</h2><button class="closex" onclick="closeRef()">&times;</button></div>
+    <div id="refBody"></div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   ██  CONFIG BLOCK — ALL PRICING LIVES HERE  ██
+   To change pricing, edit only this section. Nothing below it needs to move.
+   ========================================================================== */
+const CONFIG = {
+
+  /* ---- BRANDING -------------------------------------------------------
+     Drop your logo in here. Two slots, because the backgrounds differ:
+       logoOnPlum  -> the dark purple top bar   (needs a WHITE / knockout logo)
+       logoOnWhite -> the customer quote header (needs your FULL-COLOUR logo)
+     Each slot accepts EITHER:
+       a) inline SVG markup:  '<svg viewBox="..." ...>...</svg>'   (sharpest)
+       b) an image tag:       '<img src="data:image/png;base64,iVBORw0..." alt="TADA">'
+       c) an empty string ''  -> falls back to the TADA wordmark below.
+     Height is handled by CSS; you don't need to size the file.            */
+  brand: {
+    logoOnPlum  : '',
+    logoOnWhite : '',
+    wordmark    : 'TADA'      // text fallback used when a slot is empty
+  },
+
+  // ---- Core rates -------------------------------------------------------
+  CAPABILITY_BASE_PRICE : 18500,   // monthly base, per capability, before factors
+  OTO_RATE              : 0.50,    // implementation fee = ARR x this (default)
+  OTO_MIN               : 0.30,    // lowest implementation rate a rep may enter
+  OTO_MAX               : 0.60,    // highest implementation rate a rep may enter
+  MAX_MGMT_DISCOUNT     : 0.15,    // management discount ceiling
+  MAX_TOTAL_DISCOUNT     : 0.40,   // volume + management combined ceiling
+  DEFAULT_TERM_MONTHS   : 36,
+
+  // ---- Company revenue multiplier (lower bound inclusive) ---------------
+  revenueFactors: [
+    { label:'$1B or more',        min:1_000_000_000, factor:1.00 },
+    { label:'$750M to <$1B',      min:750_000_000,   factor:0.95 },
+    { label:'$500M to <$750M',    min:500_000_000,   factor:0.90 },
+    { label:'Under $500M',        min:0,             factor:0.85 }
+  ],
+
+  // ---- Data sets / source systems multiplier ---------------------------
+  datasetFactors: [
+    { label:'20 or more', min:20, factor:1.00 },
+    { label:'16 - 19',    min:16, factor:0.95 },
+    { label:'11 - 15',    min:11, factor:0.90 },
+    { label:'6 - 10',     min:6,  factor:0.85 },
+    { label:'5 or fewer', min:0,  factor:0.80 }
+  ],
+
+  /* ---- Network scale factors -------------------------------------------
+     Tiers use `upTo` = inclusive upper bound. The final tier uses upTo:Infinity.
+     NOTE: source doc repeated the top value in the open tier (e.g. "501-750"
+     and "750+"). Rule applied: the open tier begins at max+1, so exactly
+     750 users = $9,000 and 751 users = $15,000.                          */
+  scaleFactors: {
+    users:    { label:'Users',              hint:'Named platform users',
+      tiers:[{upTo:20,mrr:0},{upTo:50,mrr:1000},{upTo:100,mrr:1800},{upTo:200,mrr:3400},{upTo:500,mrr:7500},{upTo:750,mrr:9000},{upTo:Infinity,mrr:15000}] },
+    suppliers:{ label:'Suppliers',          hint:'Active supplier records',
+      tiers:[{upTo:100,mrr:499},{upTo:500,mrr:2246},{upTo:1000,mrr:4242},{upTo:5000,mrr:18713},{upTo:Infinity,mrr:29940}] },
+    parts:    { label:'Parts',              hint:'Distinct part numbers',
+      tiers:[{upTo:10000,mrr:1000},{upTo:25000,mrr:1800},{upTo:50000,mrr:3400},{upTo:100000,mrr:7500},{upTo:Infinity,mrr:10500}] },
+    warehouse:{ label:'Warehouses',         hint:'',
+      tiers:[{upTo:5,mrr:10000},{upTo:10,mrr:18000},{upTo:25,mrr:42500},{upTo:50,mrr:75000},{upTo:Infinity,mrr:120000}] },
+    facility: { label:'Facilities',         hint:'Plants and production sites',
+      tiers:[{upTo:5,mrr:10000},{upTo:10,mrr:18000},{upTo:25,mrr:42500},{upTo:50,mrr:75000},{upTo:Infinity,mrr:120000}] },
+    products: { label:'Products',           hint:'Finished-goods SKUs',
+      tiers:[{upTo:10000,mrr:1000},{upTo:25000,mrr:1800},{upTo:50000,mrr:3400},{upTo:100000,mrr:7500},{upTo:Infinity,mrr:10500}] },
+    dc:       { label:'Distribution centers',hint:'',
+      tiers:[{upTo:5,mrr:10000},{upTo:10,mrr:18000},{upTo:25,mrr:42500},{upTo:50,mrr:75000},{upTo:Infinity,mrr:120000}] },
+    segment:  { label:'Market segments',    hint:'',
+      tiers:[{upTo:3,mrr:1500},{upTo:6,mrr:2700},{upTo:10,mrr:4250},{upTo:20,mrr:7500},{upTo:Infinity,mrr:12000}] },
+    geos:     { label:'Regions',            hint:'Operating geographies',
+      tiers:[{upTo:2,mrr:3000},{upTo:5,mrr:6750},{upTo:10,mrr:12750},{upTo:20,mrr:22500},{upTo:Infinity,mrr:36000}] },
+    bu:       { label:'Business units',     hint:'',
+      tiers:[{upTo:3,mrr:3000},{upTo:6,mrr:5400},{upTo:12,mrr:10200},{upTo:25,mrr:18750},{upTo:Infinity,mrr:30000}] },
+    dealers:  { label:'Dealers',            hint:'',
+      tiers:[{upTo:100,mrr:2500},{upTo:500,mrr:11250},{upTo:2000,mrr:42500},{upTo:10000,mrr:187500},{upTo:Infinity,mrr:375000}] },
+    customer: { label:'Customers',          hint:'End customer accounts',
+      tiers:[{upTo:1000,mrr:500},{upTo:10000,mrr:4500},{upTo:50000,mrr:21250},{upTo:250000,mrr:93750},{upTo:Infinity,mrr:150000}] }
+  },
+
+  // ---- Volume (quantity) discount --------------------------------------
+  volumeDiscounts: [
+    { min:12, pct:0.25, note:'12 or more' },
+    { min:9,  pct:0.20, note:'9 - 11'    },
+    { min:6,  pct:0.15, note:'6 - 8'     },
+    { min:3,  pct:0.08, note:'3 - 5'     },
+    { min:0,  pct:0,    note:'under 3'   }
+  ],
+
+  // ---- Portfolio: products, their capabilities, and required factors ----
+  capabilities: {
+    'spend-mgmt'      : { name:'Spend Management',                factors:['users','suppliers','parts','facility','products','geos'] },
+    'tariff-mgmt'     : { name:'Tariff Management',               factors:['users','suppliers','parts','facility','products','geos'] },
+    'total-cost'      : { name:'Total Cost Management',           factors:['users','suppliers','parts','warehouse','facility','products'] },
+    'supplier-cap'    : { name:'Supplier Capacity Management',    factors:['users','suppliers','parts','facility'] },
+    'supplier-collab' : { name:'Supplier Collaboration',          factors:['users','suppliers','parts','facility','products'] },
+    'short-sheet'     : { name:'Short Sheet Management',          factors:['users','suppliers','parts','warehouse','facility','products'] },
+    'material-track'  : { name:'Material Tracking',               factors:['users','suppliers','parts','warehouse','facility','products'] },
+    'inbound-inv'     : { name:'Inbound Inventory Management',    factors:['users','suppliers','parts','warehouse','facility'] },
+    'order-board'     : { name:'Order Board Management',          factors:['users','facility','products','dealers'] },
+    'clean-to-build'  : { name:'Clean-to-Build',                  factors:['users','warehouse','facility','products'] },
+    'supply-response' : { name:'Supply Response Management',      factors:['users','warehouse','facility','products'] },
+    'demand-mgmt'     : { name:'Demand Management',               factors:['users','warehouse','facility','products'] },
+    'outbound-inv'    : { name:'Outbound Inventory Management',   factors:['users','facility','products','dc','segment'] },
+    'fulfilment'      : { name:'Fulfilment Management',           factors:['users','facility','products','dc','segment'] },
+    'pfes'            : { name:'Plan for Every SKU',              factors:['users','facility','products','dc','segment'] },
+    'strategic-acct'  : { name:'Strategic Account Management',    factors:['users','customer'] },
+    'aftermarket'     : { name:'Aftermarket Operations Management',factors:['users'] },
+    'asset-service'   : { name:'Asset Service Management',        factors:['users'] },
+    'asset-capital'   : { name:'Asset Capital Planning',          factors:['users'] },
+    'asset-util'      : { name:'Asset Utilization Management',    factors:['users'] },
+    'asset-return'    : { name:'Asset Economic Return',           factors:['users'] },
+    'ent-simulator'   : { name:'Enterprise Simulator',            factors:['users','suppliers','parts','warehouse','facility','products','dc','segment','geos','bu','dealers','customer'] }
+  },
+
+  products: [
+    { id:'procurement',  name:'Procurement System of Action',  caps:['spend-mgmt','tariff-mgmt','total-cost','supplier-cap'] },
+    { id:'supply-chain', name:'Supply Chain System of Action', caps:['supplier-collab','short-sheet','material-track','inbound-inv'] },
+    { id:'production',   name:'Production System of Action',   caps:['order-board','clean-to-build','supply-response','demand-mgmt'] },
+    { id:'distribution', name:'Distribution System of Action', caps:['outbound-inv','fulfilment','pfes'] },
+    { id:'customer-soa', name:'Customer System of Action',     caps:['strategic-acct','aftermarket','asset-service'] },
+    { id:'asset',        name:'Asset System of Action',        caps:['asset-capital','asset-util','asset-return'] },
+    { id:'simulator',    name:'Enterprise Simulator',          caps:['ent-simulator'], standalone:true }
+  ],
+
+  solutions: [
+    { id:'esa', name:'Enterprise Supply Assurance',
+      caps:['supplier-cap','supplier-collab','short-sheet','material-track','clean-to-build'],
+      note:'A cross-product bundle. Every capability here also appears under its own System of Action — selecting it in either place counts and prices it once.' }
+  ]
+};
+/* ====================== END CONFIG BLOCK ================================= */
+
+
+/* ---------- State ---------- */
+const state = { selected:new Set(), scale:{}, md:0, open:new Set() };
+
+/* ---------- Helpers ---------- */
+const $  = id => document.getElementById(id);
+const money = n => '$' + Math.round(n).toLocaleString('en-US');
+const pct   = n => (Math.round(n*1000)/10) + '%';
+
+function tierFor(key, count){
+  const f = CONFIG.scaleFactors[key];
+  for(const t of f.tiers){ if(count <= t.upTo) return t; }
+  return f.tiers[f.tiers.length-1];
+}
+function tierLabel(key, i){
+  const tiers = CONFIG.scaleFactors[key].tiers;
+  const lo = i === 0 ? (tiers[0].upTo === 20 && key==='users' ? 0 : (key==='warehouse'||key==='facility'||key==='dc'||key==='segment'||key==='geos'||key==='bu' ? 1 : 0)) : tiers[i-1].upTo + 1;
+  const hi = tiers[i].upTo;
+  return hi === Infinity ? lo.toLocaleString()+'+' : lo.toLocaleString()+' - '+hi.toLocaleString();
+}
+
+/* ---------- Core calculation ---------- */
+function calc(){
+  const caps = [...state.selected];
+
+  // Capability fee: base x revenue factor x dataset factor, per capability
+  const revFactor = CONFIG.revenueFactors[+$('fRevenue').value].factor;
+  const dsFactor  = CONFIG.datasetFactors[+$('fDatasets').value].factor;
+  const perCap    = CONFIG.CAPABILITY_BASE_PRICE * revFactor * dsFactor;
+  const capabilityFee = perCap * caps.length;
+
+  // Network scale fee: union of required factors, each charged once
+  const required = requiredFactors();
+  let networkFee = 0;
+  const netLines = [];
+  required.forEach(k => {
+    const idx = state.scale[k];
+    if(!isBand(k, idx)) return;
+    const t = CONFIG.scaleFactors[k].tiers[idx];
+    networkFee += t.mrr;
+    netLines.push({ key:k, band:tierLabel(k, Number(idx)), mrr:t.mrr });
+  });
+
+  const subtotal = capabilityFee + networkFee;
+
+  // Discounts
+  const vd = CONFIG.volumeDiscounts.find(d => caps.length >= d.min);
+  const volumePct = vd.pct;
+  const mdCap  = Math.min(CONFIG.MAX_MGMT_DISCOUNT, Math.max(0, CONFIG.MAX_TOTAL_DISCOUNT - volumePct));
+  const mgmtPct = state.md/100;
+  const totalPct = volumePct + mgmtPct;
+  const overCap = totalPct > CONFIG.MAX_TOTAL_DISCOUNT + 1e-9 || mgmtPct > CONFIG.MAX_MGMT_DISCOUNT + 1e-9;
+
+  const discountAmt = subtotal * totalPct;
+  const mrr = subtotal - discountAmt;
+  const arr = mrr * 12;
+  const otoEntered = Number($('fOto').value);
+  const otoRate = isNaN(otoEntered) || $('fOto').value === ''
+    ? CONFIG.OTO_RATE
+    : Math.min(CONFIG.OTO_MAX, Math.max(CONFIG.OTO_MIN, otoEntered/100));
+  const oto = arr * otoRate;
+  const months = Math.max(1, Number($('fMonths').value) || CONFIG.DEFAULT_TERM_MONTHS);
+  const tcv = mrr * months + oto;
+
+  return { caps, perCap, revFactor, dsFactor, capabilityFee, networkFee, netLines,
+           subtotal, volumePct, mgmtPct, totalPct, mdCap, overCap, vd,
+           discountAmt, mrr, arr, oto, otoRate, months, tcv };
+}
+
+/* Union of every scale factor required by the selected capabilities */
+function requiredFactors(){
+  const out = [];
+  Object.keys(CONFIG.scaleFactors).forEach(k => {
+    for(const c of state.selected){
+      if(CONFIG.capabilities[c].factors.includes(k)){ out.push(k); return; }
+    }
+  });
+  return out;
+}
+
+/* ---------- Portfolio UI ---------- */
+function buildPortfolio(){
+  let h = '';
+  CONFIG.products.forEach(p => { h += groupHTML(p, false); });
+  h += '<div style="margin:18px 0 9px;font-family:var(--display);font-size:12px;font-weight:600;color:var(--plum)">Solutions</div>';
+  CONFIG.solutions.forEach(s => { h += groupHTML(s, true); });
+  $('portfolio').innerHTML = h;
+}
+function groupHTML(g, isSolution){
+  const caps = g.caps;
+  const on   = caps.filter(c => state.selected.has(c)).length;
+  const all  = on === caps.length;
+  const standalone = g.standalone;
+  const open = state.open.has(g.id);
+
+  const cls = ['prodgroup', on?'active':'', open?'open':''].filter(Boolean).join(' ');
+
+  let h = `<div class="${cls}">
+    <div class="prodhead" ${standalone?'':`onclick="toggleOpen('${g.id}')"`}>
+      <input type="checkbox" ${all?'checked':''} title="${all?'Clear':'Select'} all capabilities in ${g.name}"
+             onclick="event.stopPropagation();toggleGroup('${g.id}',${isSolution})">
+      <div class="name">${g.name}</div>
+      <div class="count">${standalone ? (on?'Included':'') : on+' of '+caps.length}</div>
+      ${standalone ? '' : `<span class="chev"><svg viewBox="0 0 8 12" fill="none" aria-hidden="true"><path d="M1.5 1L6.5 6L1.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`}
+    </div>`;
+
+  if(!standalone){
+    h += '<div class="caps">';
+    caps.forEach(c => {
+      h += `<label class="capitem ${isSolution?'mirror':''}">
+        <input type="checkbox" ${state.selected.has(c)?'checked':''} onchange="toggleCap('${c}')">
+        <span>${CONFIG.capabilities[c].name}</span>
+        ${isSolution?'<span class="mirrortag">shared</span>':''}
+      </label>`;
+    });
+    h += '</div>';
+    if(g.note) h += `<div class="solnote">${g.note}</div>`;
+  }
+  h += '</div>';
+  return h;
+}
+function toggleOpen(id){
+  state.open.has(id) ? state.open.delete(id) : state.open.add(id);
+  buildPortfolio();
+}
+function toggleGroup(id, isSolution){
+  const list = isSolution ? CONFIG.solutions : CONFIG.products;
+  const g = list.find(x => x.id === id);
+  const all = g.caps.every(c => state.selected.has(c));
+  g.caps.forEach(c => all ? state.selected.delete(c) : state.selected.add(c));
+  if(!all && !g.standalone) state.open.add(id);   // show what just got included
+  render();
+}
+function toggleCap(c){
+  state.selected.has(c) ? state.selected.delete(c) : state.selected.add(c);
+  render();
+}
+
+/* ---------- Scale inputs UI ----------
+   Each factor is chosen as a band rather than an exact count. state.scale[k]
+   holds the TIER INDEX (or '' when unanswered).                            */
+let scaleSig = null;
+
+function buildScale(){
+  const req = requiredFactors();
+  const sig = req.join('|');
+
+  if(sig === scaleSig){ updateScaleAmounts(); return; }
+  scaleSig = sig;
+
+  if(!req.length){
+    $('scaleInputs').innerHTML = '<div class="empty">Pick capabilities in step 2 and the scale inputs they need will appear here.</div>';
+    return;
+  }
+
+  let h = '<div id="scaleNeeds"></div>';
+  req.forEach(k => {
+    const f = CONFIG.scaleFactors[k];
+    h += `<div class="scalerow" data-k="${k}">
+      <div class="nm">${f.label}
+        <span class="info" data-tip="${k}">i</span>
+        <small>${f.hint || ''}</small></div>
+      <select aria-label="${f.label}" onchange="setBand('${k}',this.value)">
+        <option value="">Select…</option>
+        ${f.tiers.map((t,i)=>`<option value="${i}">${tierLabel(k,i)}</option>`).join('')}
+      </select>
+      <div class="amt" data-amt="${k}"></div>
+    </div>`;
+  });
+  $('scaleInputs').innerHTML = h;
+  updateScaleAmounts();
+}
+
+/* Updates the money column and selection state in place. */
+function updateScaleAmounts(){
+  document.querySelectorAll('#scaleInputs .scalerow').forEach(row => {
+    const k   = row.dataset.k;
+    const idx = state.scale[k];
+    const blank = !isBand(k, idx);
+    const t = blank ? null : CONFIG.scaleFactors[k].tiers[idx];
+
+    const sel = row.querySelector('select');
+    const want = blank ? '' : String(idx);
+    if(document.activeElement !== sel && sel.value !== want) sel.value = want;
+    sel.classList.toggle('blank', blank);
+
+    row.querySelector('[data-amt]').innerHTML = t
+      ? `${money(t.mrr)}<small>per month</small>`
+      : `<span style="color:var(--coral)">Needed</span><small>pick a range</small>`;
+
+    const drivers = [...state.selected].filter(c => CONFIG.capabilities[c].factors.includes(k)).length;
+    const tips = CONFIG.scaleFactors[k].tiers.map((t,i)=>`${tierLabel(k,i)} = ${money(t.mrr)}`).join('\n');
+    row.querySelector('[data-tip]').title =
+      `Required by ${drivers} selected capabilit${drivers===1?'y':'ies'}. Charged once for the deal, not per capability.\n\n${tips}`;
+  });
+
+  const missing = requiredFactors().filter(k => !isBand(k, state.scale[k]));
+  const el = $('scaleNeeds');
+  if(el) el.innerHTML = missing.length
+    ? `<div class="needs">${missing.length} range${missing.length===1?'':'s'} still to pick — anything left blank prices at $0 and will quote the deal low.</div>`
+    : '';
+}
+
+/* A valid selection is an in-range tier index. */
+function isBand(k, v){
+  if(v === '' || v === undefined || v === null) return false;
+  const n = Number(v);
+  return Number.isInteger(n) && n >= 0 && n < CONFIG.scaleFactors[k].tiers.length;
+}
+
+function setBand(k, v){
+  state.scale[k] = v === '' ? '' : Number(v);
+  updateScaleAmounts();
+  updateTotals();
+}
+
+/* Legacy quotes stored exact counts — convert one to its band index. */
+function bandForCount(k, count){
+  const tiers = CONFIG.scaleFactors[k].tiers;
+  for(let i=0;i<tiers.length;i++){ if(Number(count) <= tiers[i].upTo) return i; }
+  return tiers.length-1;
+}
+
+/* ---------- Discount UI ---------- */
+function syncMd(v){
+  const c = calc();
+  state.md = Math.max(0, Math.min(Number(v)||0, c.mdCap*100));
+  updateTotals();
+}
+function previewTarget(){
+  const c = calc();
+  const target = Number($('fTarget').value);
+  const out = $('targetOut'); const btn = $('btnApplyTarget');
+  if(!target || c.subtotal <= 0){ out.innerHTML=''; btn.disabled=true; return; }
+  const needTotal = 1 - (target / c.subtotal);
+  const needMd = needTotal - c.volumePct;
+  if(needMd < -1e-9){
+    out.innerHTML = `<div class="alert">That price is <strong>above</strong> the volume-discounted price of ${money(c.subtotal*(1-c.volumePct))}. No management discount needed.</div>`;
+    btn.disabled = true; return;
+  }
+  const ok = needMd <= c.mdCap + 1e-9;
+  out.innerHTML = `<div class="${ok?'subpanel':'alert'}" style="margin-top:4px">
+      Requires a management discount of <strong>${pct(needMd)}</strong>, for a total of <strong>${pct(needTotal)}</strong>.
+      ${ok ? '' : ` That exceeds the ${pct(c.mdCap)} available at this volume tier and needs executive approval.`}
+    </div>`;
+  btn.disabled = !ok;
+  btn.dataset.md = needMd*100;
+}
+function openTarget(){
+  $('fTarget').value=''; $('targetOut').innerHTML=''; $('btnApplyTarget').disabled=true;
+  $('targetModal').classList.add('open');
+  setTimeout(()=>$('fTarget').focus(), 60);
+}
+function closeTarget(){ $('targetModal').classList.remove('open'); }
+
+function applyTarget(){
+  const md = Number($('btnApplyTarget').dataset.md);
+  state.md = Math.round(md*10)/10;
+  closeTarget();
+  updateTotals();
+  flash(`Management discount set to ${state.md}%`);
+}
+
+/* ==========================================================================
+   SAVE & REOPEN
+   The customer PDF intentionally omits the revenue band, data-set count and
+   the volume/management discount split, so it can't be used to rebuild a
+   quote. These functions save the full internal setup instead — as a file,
+   or as a code that can be pasted into Slack or email.
+   ========================================================================== */
+function snapshot(){
+  return { v:2,
+    cust:$('fCustomer').value, rep:$('fRep').value, date:$('fDate').value,
+    months:$('fMonths').value, oto:$('fOto').value,
+    rev:$('fRevenue').value, ds:$('fDatasets').value,
+    caps:[...state.selected], scale:state.scale, md:state.md };
+}
+
+function restore(s){
+  if(!s || typeof s !== 'object' || !Array.isArray(s.caps)) throw new Error('bad payload');
+  $('fCustomer').value = s.cust || '';
+  $('fRep').value      = s.rep  || '';
+  $('fDate').value     = s.date || '';
+  $('fMonths').value   = s.months ?? CONFIG.DEFAULT_TERM_MONTHS;
+  $('fOto').value      = s.oto ?? CONFIG.OTO_RATE*100;
+  $('fRevenue').value  = s.rev ?? 0;
+  $('fDatasets').value = s.ds ?? 0;
+  state.selected = new Set(s.caps.filter(c => CONFIG.capabilities[c]));  // drop capabilities no longer in the catalog
+
+  // v1 quotes stored exact counts; v2 stores the band index. Convert on load
+  // so quotes saved before the switch still open correctly.
+  const raw = (s.scale && typeof s.scale === 'object') ? s.scale : {};
+  state.scale = {};
+  Object.keys(raw).forEach(k => {
+    if(!CONFIG.scaleFactors[k]) return;               // factor no longer exists
+    const v = raw[k];
+    if(v === '' || v === undefined || v === null || isNaN(v)) { state.scale[k] = ''; return; }
+    state.scale[k] = (Number(s.v) >= 2) ? Number(v) : bandForCount(k, v);
+  });
+  state.md       = Number(s.md) || 0;
+  render();
+}
+
+/* Short fingerprint of the setup. Printed on the quote so a rep can confirm
+   a PDF and a save file describe the same deal. Carries no pricing detail. */
+function quoteRef(){
+  const str = JSON.stringify(snapshot());
+  let h = 5381;
+  for(let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
+  return 'TQ-' + h.toString(36).toUpperCase().padStart(6,'0').slice(-6);
+}
+
+function encodeState(){
+  return 'TADA1:' + btoa(unescape(encodeURIComponent(JSON.stringify(snapshot()))));
+}
+function decodeState(code){
+  const raw = String(code).trim().replace(/^TADA1:/,'').replace(/\s+/g,'');
+  return JSON.parse(decodeURIComponent(escape(atob(raw))));
+}
+
+function saveQuote(){
+  const s = snapshot();
+  const safe = (s.cust || 'Quote').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').slice(0,40) || 'Quote';
+  const blob = new Blob([JSON.stringify({ ...s, ref:quoteRef(), savedAt:new Date().toISOString() }, null, 2)],
+                        {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `TADA-${safe}-${quoteRef()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  flash('Saved as ' + a.download);
+}
+
+function openLoad(){ $('loadMsg').innerHTML=''; $('codeIn').value=''; $('loadModal').classList.add('open'); }
+function closeLoad(){ $('loadModal').classList.remove('open'); }
+
+function loadFile(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try { restore(JSON.parse(r.result)); closeLoad(); flash('Quote reopened'); }
+    catch(e){ loadErr("That file isn't a TADA quote file. Pick the .json saved from this tool."); }
+  };
+  r.onerror = () => loadErr("Couldn't read that file. Try choosing it again.");
+  r.readAsText(f);
+  input.value = '';
+}
+
+function loadCode(){
+  const v = $('codeIn').value.trim();
+  if(!v) return loadErr('Paste a quote code first.');
+  try { restore(decodeState(v)); closeLoad(); flash('Quote reopened'); }
+  catch(e){ loadErr("That code didn't decode. Copy it again — it may have been cut short."); }
+}
+
+function copyCode(){
+  const code = encodeState();
+  const done = () => flash('Quote code copied — paste it into Slack or email');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(done).catch(()=>fallbackCopy(code,done));
+  } else fallbackCopy(code, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }
+  catch(e){ flash('Copy failed — use Save instead.', true); }
+  ta.remove();
+}
+
+function loadErr(msg){ $('loadMsg').innerHTML = `<div class="alert">${msg}</div>`; }
+
+let flashTimer;
+function flash(msg, bad){
+  let el = $('toast');
+  if(!el){ el = document.createElement('div'); el.id='toast'; document.body.appendChild(el); }
+  el.className = 'toast' + (bad?' bad':'');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+
+/* ---------- Generate quote ----------
+   Guards the two ways a quote can go out wrong: nothing selected, or a blank
+   scale input silently pricing at $0. Both point the rep at the step to fix. */
+function readiness(){
+  const issues = [];
+  if(state.selected.size === 0){
+    issues.push({ step:2, msg:'No capabilities selected yet.' });
+  }
+  const missing = requiredFactors().filter(k => !isBand(k, state.scale[k]));
+  if(missing.length){
+    const one = missing.length === 1;
+    issues.push({ step:4,
+      msg:`${missing.length} network scale range${one?'':'s'} not picked yet (${missing.map(k=>CONFIG.scaleFactors[k].label).join(', ')}) — ${one?'it prices':'these price'} at $0 and would quote the deal low.` });
+  }
+  return issues;
+}
+
+function generateQuote(){
+  const issues = readiness();
+  if(issues.length){
+    $('genIssues').innerHTML =
+      `<div class="needs"><strong>Not ready to quote yet.</strong><ul>${
+        issues.map(i=>`<li>Step ${i.step}: ${i.msg}</li>`).join('')}</ul></div>`;
+    const step = document.querySelectorAll('#viewBuild .step')[issues[0].step - 1];
+    if(step) step.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  $('genIssues').innerHTML = '';
+  setView('quote');
+}
+
+/* ---------- Branding ---------- */
+function logoHTML(slot){
+  const b = CONFIG.brand;
+  const custom = slot === 'plum' ? b.logoOnPlum : b.logoOnWhite;
+  if(custom && custom.trim()) return custom;
+  // fallback wordmark
+  return slot === 'plum'
+    ? `${b.wordmark}<span>·</span>Pricing Calculator`
+    : `${b.wordmark}<span>·</span>`;
+}
+
+/* ---------- Render ----------
+   render()      = rebuild structure (portfolio, scale rows) + refresh numbers
+   updateTotals() = refresh numbers only, leaving every input node untouched   */
+function render(){
+  buildPortfolio();
+  buildScale();
+  updateTotals();
+}
+
+function updateTotals(){
+  let c = calc();
+  if($('genIssues').innerHTML && readiness().length === 0) $('genIssues').innerHTML = '';
+
+  // clamp md to current cap, then recalculate so every readout reflects the clamped value
+  if(state.md/100 > c.mdCap + 1e-9){ state.md = Math.round(c.mdCap*1000)/10; c = calc(); }
+  // Don't rewrite a field the user is mid-way through typing into
+  const mdStr = String(state.md);
+  if(document.activeElement !== $('fMd') && $('fMd').value !== mdStr) $('fMd').value = mdStr;
+  if(document.activeElement !== $('fMdRange')) $('fMdRange').value = state.md;
+  $('fMdRange').max = Math.round(c.mdCap*1000)/10;
+  $('fMd').max = Math.round(c.mdCap*1000)/10;
+  $('mdCapNote').textContent = `(up to ${pct(c.mdCap)} at this volume tier)`;
+
+  $('qdVal').textContent = pct(c.volumePct);
+  $('qdBasis').textContent = `(${c.caps.length} capabilit${c.caps.length===1?'y':'ies'} — ${c.vd.note})`;
+  $('totDisc').textContent = pct(c.totalPct);
+  $('discAlert').innerHTML = c.overCap
+    ? `<div class="alert"><strong>Exceeds discount policy.</strong> Total discount is capped at ${pct(CONFIG.MAX_TOTAL_DISCOUNT)}. This quote needs executive approval before it goes out.</div>` : '';
+
+  $('sARR').textContent = money(c.arr);
+  $('sMRR').textContent = money(c.mrr);
+  $('sOTO').textContent = money(c.oto);
+  $('sTCV').textContent = money(c.tcv);
+  $('sTerm').textContent = `(${c.months} mo)`;
+  $('sOtoPct').textContent = `(${pct(c.otoRate)})`;
+
+  const otoRaw = Number($('fOto').value);
+  const otoOut = $('fOto').value !== '' && !isNaN(otoRaw) &&
+                 (otoRaw < CONFIG.OTO_MIN*100 - 1e-9 || otoRaw > CONFIG.OTO_MAX*100 + 1e-9);
+  $('otoNote').innerHTML = otoOut
+    ? `<span style="color:var(--coral);font-weight:600">Outside the ${CONFIG.OTO_MIN*100}–${CONFIG.OTO_MAX*100}% range — calculating at ${pct(c.otoRate)}.</span>`
+    : `Standard is ${CONFIG.OTO_RATE*100}%. Range ${CONFIG.OTO_MIN*100}–${CONFIG.OTO_MAX*100}%.`;
+
+  $('bCap').textContent  = money(c.capabilityFee);
+  $('bNet').textContent  = money(c.networkFee);
+  $('bSub').textContent  = money(c.subtotal);
+  $('bDisc').textContent = c.discountAmt ? '−'+money(c.discountAmt) : money(0);
+  $('bDiscPct').textContent = c.totalPct ? '('+pct(c.totalPct)+')' : '';
+  $('bMRR').textContent  = money(c.mrr);
+
+  buildQuote(c);
+}
+
+/* ---------- Quote view ---------- */
+function buildQuote(c){
+  const cust = $('fCustomer').value || 'Customer name';
+  const rep  = $('fRep').value || '—';
+  const date = $('fDate').value || '';
+
+  // Group selected capabilities under their parent product
+  let prodRows = '';
+  CONFIG.products.forEach(p => {
+    const owned = p.caps.filter(x => state.selected.has(x));
+    if(!owned.length) return;
+    const partial = owned.length < p.caps.length && !p.standalone;
+    const amt = c.perCap * owned.length;
+    prodRows += `<div class="q-prod">
+      <div class="pname"><span>${p.name}${partial?' <span style="font-weight:400;color:var(--muted);font-size:12.5px">— selected capabilities</span>':''}</span><span class="amt">${money(amt)}</span></div>
+      ${p.standalone ? '' : '<ul>'+owned.map(x=>`<li>${CONFIG.capabilities[x].name}</li>`).join('')+'</ul>'}
+    </div>`;
+  });
+  if(!prodRows) prodRows = '<div class="q-prod"><div class="pname"><span style="color:var(--muted);font-weight:400">No capabilities selected yet.</span></div></div>';
+
+  const netRows = c.netLines.length
+    ? c.netLines.map(l => `<div class="q-row"><span>${CONFIG.scaleFactors[l.key].label} <span style="color:var(--muted)">· ${l.band}</span></span><span class="v">${money(l.mrr)}</span></div>`).join('')
+    : '<div class="q-row"><span style="color:var(--muted)">No network scale ranges selected.</span><span class="v">$0</span></div>';
+
+  $('quoteBody').innerHTML = `
+    <div class="q-head">
+      <div class="logo">${logoHTML('white')}</div>
+      <div class="meta">Prepared for <b>${cust}</b><br>Prepared by <b>${rep}</b><br>${date}</div>
+    </div>
+
+    <h1 class="q-title">Pricing summary</h1>
+    <div class="q-sub">${c.months}-month term · ${c.caps.length} capabilit${c.caps.length===1?'y':'ies'}</div>
+
+    <div class="q-sect">Capability fee</div>
+    ${prodRows}
+    <div class="q-row" style="border-bottom:0;padding-top:12px"><span style="font-weight:600;color:var(--ink)">Capability fee subtotal</span><span class="v" style="font-weight:600">${money(c.capabilityFee)}</span></div>
+
+    <div class="q-sect">Network scale fee</div>
+    ${netRows}
+    <div class="q-row" style="border-bottom:0;padding-top:12px"><span style="font-weight:600;color:var(--ink)">Network scale fee subtotal</span><span class="v" style="font-weight:600">${money(c.networkFee)}</span></div>
+
+    <div class="q-sect">Monthly total</div>
+    <div class="q-row"><span>Subtotal before discount</span><span class="v">${money(c.subtotal)}</span></div>
+    ${c.totalPct ? `<div class="q-row disc"><span>Program discount (${pct(c.totalPct)})</span><span class="v">−${money(c.discountAmt)}</span></div>` : ''}
+
+    <div class="q-totals">
+      <div class="q-tot hero"><div class="l">Annual price</div><div class="v">${money(c.arr)}</div></div>
+      <div class="q-tot"><div class="l">Monthly price</div><div class="v">${money(c.mrr)}</div></div>
+      <div class="q-tot"><div class="l">One-time implementation fee</div><div class="v">${money(c.oto)}</div></div>
+      <div class="q-tot grand"><div class="l">Total contract value · ${c.months} months</div><div class="v">${money(c.tcv)}</div></div>
+    </div>
+
+    <div class="q-foot">
+      Reference ${quoteRef()} · Pricing is quoted in USD and reflects the operating scope shared during discovery. Material changes to that scope
+      may change the fees above. The implementation fee is billed once at project start. This summary is for discussion
+      purposes and is not a binding offer.
+    </div>`;
+}
+
+/* ---------- Reference modal ---------- */
+function buildRef(){
+  let h = `<p style="font-size:13.5px;color:var(--muted);margin-bottom:6px">Every rate the calculator uses. Read-only — edit the CONFIG block in the file to change pricing.</p>
+
+  <div class="ref-note"><strong>How a monthly price is built.</strong>
+  Capability fee = ${money(CONFIG.CAPABILITY_BASE_PRICE)} × revenue factor × data-set factor, per capability.
+  Network scale fee = the sum of each required scale factor, counted once for the deal rather than once per capability.
+  Monthly price = (capability fee + network scale fee) × (1 − total discount).
+  Annual = monthly × 12. Implementation fee = annual × the rate set on the quote (standard ${CONFIG.OTO_RATE*100}%, adjustable ${CONFIG.OTO_MIN*100}–${CONFIG.OTO_MAX*100}%). TCV = (monthly × term) + implementation fee.</div>
+
+  <div class="ref-h">Company revenue factor</div>
+  <table class="reftable"><tr><th>Revenue</th><th>Factor</th></tr>
+  ${CONFIG.revenueFactors.map(r=>`<tr><td>${r.label}</td><td>${r.factor.toFixed(2)}</td></tr>`).join('')}</table>
+
+  <div class="ref-h">Data sets / source systems factor</div>
+  <table class="reftable"><tr><th>Count</th><th>Factor</th></tr>
+  ${CONFIG.datasetFactors.map(r=>`<tr><td>${r.label}</td><td>${r.factor.toFixed(2)}</td></tr>`).join('')}</table>
+
+  <div class="ref-h">Volume discount</div>
+  <table class="reftable"><tr><th>Capabilities</th><th>Discount</th></tr>
+  ${[...CONFIG.volumeDiscounts].reverse().map(d=>`<tr><td>${d.note}</td><td>${(d.pct*100)}%</td></tr>`).join('')}</table>
+  <div class="ref-note">Management discount is capped at ${CONFIG.MAX_MGMT_DISCOUNT*100}%, and volume + management combined at ${CONFIG.MAX_TOTAL_DISCOUNT*100}%. Anything beyond either needs executive approval.</div>
+
+  <div class="ref-h">Network scale factors</div>
+  <div class="ref-note">Where the source tables repeated a value across two tiers (for example "501-750" and "750+"), the open-ended tier starts at max + 1. Exactly 750 users prices at $9,000; 751 prices at $15,000.</div>
+  <div class="refgrid">`;
+
+  Object.entries(CONFIG.scaleFactors).forEach(([k,f]) => {
+    h += `<div><div class="ref-h">${f.label}</div><table class="reftable"><tr><th>Range</th><th>Monthly</th></tr>
+    ${f.tiers.map((t,i)=>`<tr><td>${tierLabel(k,i)}</td><td>${money(t.mrr)}</td></tr>`).join('')}</table></div>`;
+  });
+
+  h += `</div><div class="ref-h">Which capabilities need which scale inputs</div>
+  <table class="reftable"><tr><th>Capability</th><th style="text-align:left">Scale factors</th></tr>
+  ${Object.entries(CONFIG.capabilities).map(([id,c])=>`<tr><td>${c.name}</td><td style="text-align:left">${c.factors.map(f=>CONFIG.scaleFactors[f].label).join(', ')}</td></tr>`).join('')}
+  </table>`;
+
+  $('refBody').innerHTML = h;
+}
+function openRef(){ buildRef(); $('refModal').classList.add('open'); }
+function closeRef(){ $('refModal').classList.remove('open'); }
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeRef(); closeLoad(); closeTarget(); } });
+
+/* ---------- View switching ---------- */
+function setView(v){
+  const b = v === 'build';
+  $('viewBuild').style.display = b ? 'block' : 'none';
+  $('viewQuote').style.display = b ? 'none' : 'block';
+  $('tabBuild').classList.toggle('on', b);
+  $('tabQuote').classList.toggle('on', !b);
+  window.scrollTo(0,0);
+}
+
+/* ---------- Init ---------- */
+(function init(){
+  $('fRevenue').innerHTML  = CONFIG.revenueFactors.map((r,i)=>`<option value="${i}">${r.label}</option>`).join('');
+  $('fDatasets').innerHTML = CONFIG.datasetFactors.map((r,i)=>`<option value="${i}">${r.label}</option>`).join('');
+  $('brandTop').innerHTML = logoHTML('plum');
+  $('fMonths').value = CONFIG.DEFAULT_TERM_MONTHS;
+  $('fOto').value = CONFIG.OTO_RATE*100;
+  $('fOto').min = CONFIG.OTO_MIN*100;
+  $('fOto').max = CONFIG.OTO_MAX*100;
+  $('otoInfo').title = `One-time fee, calculated as a percentage of the annual price. Standard ${CONFIG.OTO_RATE*100}%, adjustable between ${CONFIG.OTO_MIN*100}% and ${CONFIG.OTO_MAX*100}%.`;
+  $('revInfo').title = 'Multiplier on every capability\'s base price.\n\n'
+    + CONFIG.revenueFactors.map(r=>`${r.label} = ${r.factor.toFixed(2)}`).join('\n')
+    + '\n\nBands are lower-bound inclusive: exactly $750M scores 0.95.';
+  $('dsInfo').title = 'Second multiplier on capability base price. Reflects integration surface area.\n\n'
+    + CONFIG.datasetFactors.map(r=>`${r.label} = ${r.factor.toFixed(2)}`).join('\n');
+  $('fDate').value = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  render();
+})();
+</script>
+</body>
+</html>
